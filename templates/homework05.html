@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <!-- Webpage Title -->
+        <title>일단 쓰담쓰담해보자</title>
+
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+              integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+              crossorigin="anonymous">
+
+        <!-- JS -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+                integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+                crossorigin="anonymous"></script>
+
+        <!-- 구글폰트 -->
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300&display=swap" rel="stylesheet">
+
+        <script type="text/javascript">
+            function isCellPhone(p) {
+                let regExp = /^(01[016789]{1}|02|0[3-9]{1}[0-9]{1})[-][0-9]{3,4}[-][0-9]{4}$/;
+                return regExp.test(p);
+            }
+
+            function order() {
+                let name = $("#order-name").val();
+                let count = $("#order-count").val();
+                let address = $("#order-address").val();
+                let phone = $("#order-phone").val();
+
+                if (name == "") {
+                    alert("이름을 입력해주세요")
+                    $("#order-name").focus()
+                    return
+                } else if (count == "") {
+                    alert("수량을 입력해주세요")
+                    $("#order-count").focus()
+                    return
+                } else if (address == "") {
+                    alert("주소를 입력해주세요")
+                    $("#order-address").focus()
+                    return
+                } else if (phone == "") {
+                    alert("휴대폰번호를 입력해주세요")
+                    $("#order-phone").focus()
+                    return
+                } else if (!isCellPhone(phone)) {
+                    alert("휴대폰번호 입력 형식이 틀립니다. \n 010-0000-0000으로 입력해주세요")
+                    return
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/order",
+                    data: {name_give: name, count_give: count, address_give: address, phone_give: phone},
+                    success: function (response) {
+                        if (response['result'] == 'success') {
+                            alert('주문완료');
+                            window.location.reload();
+                        }
+                    }
+                })
+            }
+
+            $(document).ready(function () {
+                $("#orders-box").html("");
+                showOrders();
+            });
+
+            function showOrders() {
+                $.ajax({
+                    type: "GET",
+                    url: "/order",
+                    data: {},
+                    success: function (response) {
+                        if (response['result'] == 'success') {
+                            let orders = response['orders'];
+                            for (let i = 0; i < orders.length; i++) {
+                                makeOrderRow(orders[i]['name'], orders[i]['count'], orders[i]['address'], orders[i]['phone'])
+                            }
+                        } else {
+                            alert('주문을 받아오지 못했습니다');
+                        }
+                    }
+                })
+            }
+
+            function makeOrderRow(name, count, address, phone) {
+                let tempHtml = `<tr>\
+                                <td>${name}</td>
+                                <td>${count}</td>
+                                <td>${address}</td>
+                                <td>${phone}</td>
+                              </tr>`;
+
+                $("#orders-box").append(tempHtml);
+            }
+        </script>
+        <style type="text/css">
+            * {
+                font-family: 'Noto Sans KR', sans-serif;
+            }
+
+            h1, h5 {
+                display: inline;
+            }
+
+            .wrap {
+                width: 500px;
+                margin: auto;
+            }
+
+            .img {
+                background-image: url('http://211.117.51.24/dog.jpg');
+                background-size: cover;
+                background-position: center;
+                width: 500px;
+                height: 300px;
+            }
+
+            .info {
+                margin-top: 20px;
+                margin-bottom: 20px;
+            }
+
+            .info {
+                margin-top: 20px;
+                margin-bottom: 20px;
+            }
+
+            .order {
+                text-align: center;
+            }
+
+            .orders {
+                margin-top: 100px;
+            }
+
+            .info-temp {
+                color: yellowgreen;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrap">
+            <div class="img"></div>
+            <div class="info">
+                <h1>희동이 1회 쓰담권</h1>
+                <p>
+                <h5>비용 : 100,000,000원/회당</h5>
+                </P>
+                <p>" 희동이는 우주 최강 부드럽죠. 회사에서 받은 스트레스 한방에 날려드립니다! 완벽한 효과보장"</p>
+                <div class="info">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">주문자 이름</span>
+                        </div>
+                        <input type="text" class="form-control" id="order-name">
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="order-count">수량</label>
+                        </div>
+                        <select class="custom-select" id="order-count">
+                            <option selected value=""> -- 수량을 선택하세요 --</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">주소</span>
+                        </div>
+                        <input type="text" class="form-control" id="order-address">
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">전화번호</span>
+                        </div>
+                        <input type="text" class="form-control" id="order-phone">
+                    </div>
+                    <div class="order">
+                        <button onclick="order()" type="button" class="btn btn-primary">주문하기</button>
+                    </div>
+                    <div class="orders">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th scope="col">이름</th>
+                                <th scope="col">수량</th>
+                                <th scope="col">주소</th>
+                                <th scope="col">전화번호</th>
+                            </tr>
+                            </thead>
+                            <tbody id="orders-box">
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+<body>
+    <script>
+        function sayHello() {
+            alert('쓰담쓰담 주문 완료:D');
+        }
+    </script>
+</body>
+</html>
